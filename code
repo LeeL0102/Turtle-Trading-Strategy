@@ -1,0 +1,39 @@
+//@version=5
+strategy("Turtle Trading Strategy", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=10)
+
+// 海龟交易策略参数
+entryLength = input.int(20, title="Entry Breakout Period", minval=1)
+exitLength = input.int(10, title="Exit Breakout Period", minval=1)
+atrLength = input.int(14, title="ATR Period", minval=1)
+
+// 计算价格通道和ATR
+highestHigh = ta.highest(high, entryLength)
+lowestLow = ta.lowest(low, entryLength)
+exitHigh = ta.highest(high, exitLength)
+exitLow = ta.lowest(low, exitLength)
+atr = ta.atr(atrLength)
+
+// 定义买入和卖出条件
+longCondition = close > highestHigh
+exitLongCondition = close < exitLow
+shortCondition = close < lowestLow
+exitShortCondition = close > exitHigh
+
+// 执行买入和卖出
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+
+if (exitLongCondition)
+    strategy.close("Long")
+
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
+
+if (exitShortCondition)
+    strategy.close("Short")
+
+// 绘制通道
+plot(highestHigh, color=color.green, title="Entry High")
+plot(lowestLow, color=color.red, title="Entry Low")
+plot(exitHigh, color=color.green, style=plot.style_dashed, title="Exit High")
+plot(exitLow, color=color.red, style=plot.style_dashed, title="Exit Low")
